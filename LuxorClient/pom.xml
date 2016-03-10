@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.ud.cis.cisc181</groupId>
-	<artifactId>LuxorServer</artifactId>
+	<artifactId>LuxorClient</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<properties>
@@ -91,5 +91,65 @@
 			<artifactId>poi</artifactId>
 			<version>3.12</version>
 		</dependency>
+		
+		
+		
+		<dependency>
+			<groupId>com.sun.xml.ws</groupId>
+			<artifactId>webservices-rt</artifactId>
+			<version>@metro.version@</version>
+		</dependency>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	</dependencies>
+		<build>
+		<plugins>
+			<plugin>
+				<groupId>com.zenjava</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>8.1.2</version>
+				<configuration>
+					<mainClass>poker.app.MainApp</mainClass>
+					<nativeInstallers />
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
+
+
+
+
+
+
+
+
+
+
+
+
+

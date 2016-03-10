@@ -9,6 +9,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Locale;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import exceptions.DeckException;
 import exceptions.HandException;
 import pokerEnums.*;
@@ -16,8 +19,10 @@ import pokerEnums.*;
 import static java.lang.System.out;
 import static java.lang.System.err;
 
+@XmlRootElement
 public class Hand {
 
+	@XmlElement(name="Card")
 	private ArrayList<Card> CardsInHand;
 	private ArrayList<Card> BestCardsInHand;
 	private HandScore HandScore;
@@ -27,7 +32,12 @@ public class Hand {
 		CardsInHand = new ArrayList<Card>();
 		BestCardsInHand = new ArrayList<Card>();
 	}
-
+	
+	@XmlElement
+	private int getCardCount() 
+	{
+		return CardsInHand.size();
+	}
 	public ArrayList<Card> getCardsInHand() {
 		return CardsInHand;
 	}
@@ -52,6 +62,7 @@ public class Hand {
 		HandScore = handScore;
 	}
 
+	@XmlElement(name="Scored")
 	public boolean isbScored() {
 		return bScored;
 	}
