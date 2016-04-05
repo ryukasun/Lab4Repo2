@@ -8,6 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Locale;
+import java.util.UUID;
+import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -20,24 +22,29 @@ import static java.lang.System.out;
 import static java.lang.System.err;
 
 @XmlRootElement
-public class Hand {
+public class Hand  {
 
-	@XmlElement(name="Card")
+	@XmlElement(name = "Card")
 	private ArrayList<Card> CardsInHand;
+	@XmlElement
+	private UUID HandID;
 	private ArrayList<Card> BestCardsInHand;
+
 	private HandScore HandScore;
 	private boolean bScored = false;
 
 	public Hand() {
+		setHandScore(new HandScore());
 		CardsInHand = new ArrayList<Card>();
 		BestCardsInHand = new ArrayList<Card>();
+		HandID = UUID.randomUUID();
 	}
-	
+
 	@XmlElement
-	private int getCardCount() 
-	{
+	private int getCardCount() {
 		return CardsInHand.size();
 	}
+
 	public ArrayList<Card> getCardsInHand() {
 		return CardsInHand;
 	}
@@ -54,6 +61,11 @@ public class Hand {
 		BestCardsInHand = bestCardsInHand;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see pokerBase.iHandRead#getHandScore()
+	 */
 	public HandScore getHandScore() {
 		return HandScore;
 	}
@@ -62,7 +74,12 @@ public class Hand {
 		HandScore = handScore;
 	}
 
-	@XmlElement(name="Scored")
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see pokerBase.iHandRead#isbScored()
+	 */
+	@XmlElement(name = "Scored")
 	public boolean isbScored() {
 		return bScored;
 	}
@@ -81,6 +98,85 @@ public class Hand {
 		return this;
 	}
 
+	
+	public static Hand Evaluate(ArrayList<Hand> Hands) throws HandException
+	{
+		ArrayList<Hand> AllHands = new ArrayList<Hand>();
+		
+		for  (Hand h: Hands)
+		{
+			AllHands.add(Evaluate(h));
+		}
+		
+		//	This will sort the hands that were generated
+		Collections.sort(AllHands,Hand.HandRank);
+		
+		if (AllHands.get(0).getHandScore() == AllHands.get(1).getHandScore())
+		{
+			//	This is a tie hand (first two hand score is the same)
+			throw new HandException(AllHands.get(0),eHandExceptionType.ShortHand);
+		}
+				
+		//	This will pick the best hand (highest sort) and return it
+		return AllHands.get(0);
+		
+	}
+	
+	public static Hand Evaluate(Hand h) throws HandException
+	{		
+		ArrayList<Hand> AllHands = new ArrayList<Hand>();
+		
+		//	Make sure each hand passed in has 5 cards.  Explode is expecting 5 cards.	
+		if (h.getCardsInHand().size() != 5)
+		{
+			throw new HandException(h,eHandExceptionType.ShortHand);			
+		}
+		
+		//	If the fifth card is a Joker or Wild, all five cards are jokers.  Short circuit- return 5 aces
+		if ((h.getCardsInHand().get(eCardNo.FifthCard.getCardNo()).isWild()) ||
+				(h.getCardsInHand().get(eCardNo.FifthCard.getCardNo()).geteRank() == eRank.JOKER))
+				{
+			Hand hnd = new Hand();
+			hnd.setCardsInHand(h.getCardsInHand());
+			HandScore hs = new HandScore();
+			hs.setHandStrength(eHandStrength.FiveOfAKind.ordinal());
+			hs.setHiHand(eRank.ACE.ordinal());
+			hs.setLoHand(0);
+			h.setHandScore(hs);
+			return hnd;
+		}
+		
+		//	If the fourth card is a Joker or Wild, you have a five of a kind... of the fifth card
+		if ((h.getCardsInHand().get(eCardNo.FourthCard.getCardNo()).isWild()) ||
+				(h.getCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank() == eRank.JOKER))
+				{
+			Hand hnd = new Hand();
+			hnd.setCardsInHand(h.getCardsInHand());
+			HandScore hs = new HandScore();
+			hs.setHandStrength(eHandStrength.FiveOfAKind.ordinal());
+			hs.setHiHand(h.getCardsInHand().get(eCardNo.FifthCard.getCardNo()).geteRank().getiRankNbr());
+			hs.setLoHand(0);
+			h.setHandScore(hs);
+			return hnd;
+		}
+		
+		//	This is going to generate a number of hands if there are jokers or wilds in the hand
+		AllHands = ExplodeHands(h);
+		
+		//	This will evaluate all hands generated
+		for (Hand hand: AllHands)
+		{
+			hand = EvaluateHand(hand);
+		}
+		
+		//	This will sort the hands that were generated
+		Collections.sort(AllHands,Hand.HandRank);
+		
+		//	This will pick the best hand (highest sort) and return it
+		return AllHands.get(0);
+		
+	}
+	
 	/**
 	 * EvaluateHand is a static method that will score a given Hand of cards
 	 * 
@@ -88,16 +184,14 @@ public class Hand {
 	 * @return
 	 * @throws HandException
 	 */
-	public static Hand EvaluateHand(Hand h) throws HandException {
+	private static Hand EvaluateHand(Hand h) throws HandException {
 
 		Collections.sort(h.getCardsInHand());
 
-		// Collections.sort(h.getCardsInHand(), Card.CardRank);
-
 		if (h.getCardsInHand().size() != 5) {
-			throw new HandException(h);
+			throw new HandException(h,eHandExceptionType.ShortHand);
 		}
-
+		
 		HandScore hs = new HandScore();
 		try {
 			Class<?> c = Class.forName("pokerBase.Hand");
@@ -135,6 +229,52 @@ public class Hand {
 			e.printStackTrace();
 		}
 		return h;
+	}
+
+	static ArrayList<Hand> ExplodeHands(Hand h) {
+		ArrayList<Hand> HandsToReturn = new ArrayList<Hand>();
+		
+		HandsToReturn.add(h);
+
+		// Create 13 card deck by suit
+		Deck dSuit = new Deck(h.CardsInHand.get(eCardNo.FifthCard.getCardNo()).geteSuit());
+		
+		//	Call the method that will substitute each card if it's a joker
+		for (int a = 0; a < h.CardsInHand.size(); a++)
+		{
+			HandsToReturn = SubstituteHand(HandsToReturn, a, dSuit);
+		}
+		return HandsToReturn;
+	}
+
+	private static ArrayList<Hand> SubstituteHand(ArrayList<Hand> inHands, int SubCardNo, Deck dSuit) {
+
+		ArrayList<Hand> SubHands = new ArrayList<Hand>();
+
+		for (Hand h : inHands) {
+			ArrayList<Card> c = h.getCardsInHand();
+			if (c.get(SubCardNo).geteRank() == eRank.JOKER || c.get(SubCardNo).isWild()) {
+
+				for (Card JokerSub : dSuit.getDeckCards()) {
+					ArrayList<Card> SubCards = new ArrayList<Card>();
+					SubCards.add(JokerSub);
+					for (int a = 0; a < 5; a++) {
+						if (SubCardNo != a) {
+							SubCards.add(h.getCardsInHand().get(a));
+						}
+					}
+					Hand sub = new Hand();
+					for (Card subCard : SubCards) {
+						sub.AddCardToHand(subCard);
+					}					
+					sub.getHandScore().setNatural(false);
+					SubHands.add(sub);
+				}
+			} else {
+				SubHands.add(h);
+			}
+		}
+		return SubHands;
 	}
 
 	private static boolean isHandFlush(ArrayList<Card> cards) {
@@ -234,13 +374,19 @@ public class Hand {
 		return isRoyalFlush;
 	}
 
+	/**
+	 * isHandStraightFlush - Will return true if the hand is a straight flush
+	 * @param h
+	 * @param hs
+	 * @return
+	 */
 	public static boolean isHandStraightFlush(Hand h, HandScore hs) {
 		Card c = new Card();
 		boolean isRoyalFlush = false;
 		if ((isHandFlush(h.getCardsInHand())) && (isStraight(h.getCardsInHand(), c))) {
 			isRoyalFlush = true;
 			hs.setHandStrength(eHandStrength.StraightFlush.getHandStrength());
-			hs.setHiHand(h.getCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank().getiRankNbr());
+			hs.setHiHand(c.geteRank().getiRankNbr());
 			hs.setLoHand(0);
 		}
 

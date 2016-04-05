@@ -102,7 +102,11 @@
 		
 		
 		
-		
+<dependency>
+	<groupId>com.sun.xml.ws</groupId>
+	<artifactId>policy</artifactId>
+	<version>2.3.1</version>
+</dependency>
 		
 		
 		

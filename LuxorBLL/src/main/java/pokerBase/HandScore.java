@@ -2,12 +2,16 @@ package pokerBase;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.annotation.XmlElement;
+
 public class HandScore {
+
 
 	private int HandStrength;
 	private int HiHand;
 	private int LoHand = 0;
 	private ArrayList<Card> Kickers = new ArrayList<Card>();
+	private boolean Natural = true;
 	
 	public HandScore() {}
 	
@@ -50,5 +54,14 @@ public class HandScore {
 	public void setKickers(ArrayList<Card> kickers) {
 		Kickers = kickers;
 	}
+
+	boolean isNatural() {
+		return Natural;
+	}
+
+	void setNatural(boolean natural) {
+		Natural = natural;
+	}
+	
 	
 }

@@ -12,12 +12,17 @@ import pokerBase.Card;
 import pokerBase.Deck;
 import pokerBase.Hand;
 
+
 public class TestPlay {
 
 	public static void main(String[] args) throws DeckException, HandException {
+	
+		
+		
+		
+		
+		
 		Deck d = new Deck();
-		Card c = d.Draw();
-
 		Hand h = new Hand();
 
 		for (int a = 0; a < 5; a++) {
@@ -28,6 +33,7 @@ public class TestPlay {
 
 		System.out.println(strHand);
 
+		/*
 		h = Hand.EvaluateHand(h);
 
 		strHand = SerializeHand(h);
@@ -38,7 +44,7 @@ public class TestPlay {
 		
 		strHand = SerializeHand(h2);
 		System.out.println(strHand);
-
+*/
 	}
 
 	public static String SerializeHand(Hand h) {
@@ -69,5 +75,23 @@ public class TestPlay {
 			ex.printStackTrace();
 		}
 		return h;
+	}
+	
+	
+	
+	public void TestMe() throws Exception
+	{
+		int a = 1;
+		try
+		{
+			a--;
+			int b = 9/a;	
+		}
+		catch (Exception e)
+		{
+			throw e;
+		}
+		
+		
 	}
 }

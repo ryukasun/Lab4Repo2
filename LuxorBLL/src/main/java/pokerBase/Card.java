@@ -13,8 +13,10 @@ public class Card implements Comparable {
 	private eSuit eSuit;
 	@XmlElement
 	private eRank eRank;
+	@XmlElement(name="CardNbr")
 	private int iCardNbr;
 	
+	private boolean Wild;
 	public Card()
 	{
 		
@@ -44,6 +46,15 @@ public class Card implements Comparable {
 	void seteRank(eRank eRank) {
 		this.eRank = eRank;
 	}
+
+	
+	public boolean isWild() {
+		return Wild;
+	}
+	public void setWild(boolean wild) {
+		Wild = wild;
+	}
+
 
 	public static Comparator<Card> CardRank = new Comparator<Card>() {
 

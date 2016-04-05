@@ -38,6 +38,53 @@ public class HandTest {
 	public void tearDown() throws Exception {
 	}
 
+	
+	@Test
+	public void TestWild() {
+		
+		HandScore hs = new HandScore();
+		ArrayList<Card> FourOfAKind = new ArrayList<Card>();
+		FourOfAKind.add(new Card(eSuit.CLUBS,eRank.ACE,0));
+		FourOfAKind.add(new Card(eSuit.CLUBS,eRank.ACE,0));
+		FourOfAKind.add(new Card(eSuit.JOKER,eRank.JOKER,0));		
+		FourOfAKind.add(new Card(eSuit.CLUBS,eRank.ACE,0));
+		FourOfAKind.add(new Card(eSuit.CLUBS,eRank.KING,0));
+		Collections.sort(FourOfAKind);
+		Hand h = new Hand();
+		h = SetHand(FourOfAKind,h);
+		
+		ArrayList<Hand> hands = new ArrayList<Hand>();
+		hands.add(h);
+		hands = Hand.ExplodeHands(h);
+		
+		assertEquals(hands.size(),13);
+		
+		try {
+			h = Hand.Evaluate(h);
+			
+		} catch (HandException e) {			
+			e.printStackTrace();
+			fail("TestFourOfAKindEval failed");
+		}
+		
+		
+		
+		
+	
+		boolean bActualIsHandFourOfAKind = Hand.isHandFourOfAKind(h, hs);
+		boolean bExpectedIsHandFourOfAKind = true;
+		
+		//	Did this evaluate to Four of a Kind?
+		assertEquals(bActualIsHandFourOfAKind,bExpectedIsHandFourOfAKind);		
+		//	Was the four of a kind an Ace?
+		assertEquals(hs.getHiHand(),eRank.ACE.getiRankNbr());		
+		//	FOAK has one kicker.  Was it a Club?
+		assertEquals(hs.getKickers().get(eCardNo.FirstCard.getCardNo()).geteSuit(), eSuit.CLUBS);
+		//	FOAK has one kicker.  Was it a King?		
+		assertEquals(hs.getKickers().get(eCardNo.FirstCard.getCardNo()).geteRank(), eRank.KING);
+	}
+	
+	
 	private Hand SetHand(ArrayList<Card> setCards, Hand h)
 	{
 		Object t = null;
@@ -90,8 +137,7 @@ public class HandTest {
 
 		h = SetHand(ShortHand,h);
 		
-		//	This statement should throw a HandException
-		h = Hand.EvaluateHand(h);	
+		h = Hand.Evaluate(h);
 	}	
 			
 	@Test
@@ -135,7 +181,8 @@ public class HandTest {
 		h = SetHand(FourOfAKind,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
+			
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestFourOfAKindEval failed");
@@ -195,7 +242,7 @@ public class HandTest {
 		h = SetHand(FourOfAKind,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestFourOfAKindEval failed");
@@ -253,7 +300,7 @@ public class HandTest {
 		
 	
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestFourOfAKindEval failed");
@@ -310,7 +357,7 @@ public class HandTest {
 		h = SetHand(Straight,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -362,7 +409,7 @@ public class HandTest {
 		h = SetHand(Straight,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -412,7 +459,7 @@ public class HandTest {
 		h = SetHand(Straight,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -462,7 +509,7 @@ public class HandTest {
 		h = SetHand(Flush,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -563,7 +610,7 @@ public class HandTest {
 		h = SetHand(ThreeOfAKind,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -679,7 +726,7 @@ public class HandTest {
 		h = SetHand(TwoPair,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -834,7 +881,7 @@ public class HandTest {
 		h = SetHand(Pair,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -901,7 +948,7 @@ public class HandTest {
 		h = SetHand(HighCard,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -959,7 +1006,7 @@ public class HandTest {
 		h = SetHand(RoyalFlush,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -1009,7 +1056,7 @@ public class HandTest {
 		h = SetHand(StraightFlush,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -1087,7 +1134,7 @@ public class HandTest {
 		h = SetHand(FullHouse,h);
 		
 		try {
-			h = Hand.EvaluateHand(h);
+			h = Hand.Evaluate(h);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -1117,7 +1164,7 @@ public class HandTest {
 		h1 = SetHand(FullHouse,h1);
 		
 		try {
-			h1 = Hand.EvaluateHand(h1);
+			h1 = Hand.Evaluate(h1);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -1134,7 +1181,7 @@ public class HandTest {
 		h2 = SetHand(StraightFlush,h2);
 		
 		try {
-			h2 = Hand.EvaluateHand(h2);
+			h2 = Hand.Evaluate(h2);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -1168,7 +1215,7 @@ public class HandTest {
 		h1 = SetHand(FullHouse,h1);
 		
 		try {
-			h1 = Hand.EvaluateHand(h1);
+			h1 = Hand.Evaluate(h1);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -1185,7 +1232,7 @@ public class HandTest {
 		h2 = SetHand(Straight,h2);
 		
 		try {
-			h2 = Hand.EvaluateHand(h2);
+			h2 = Hand.Evaluate(h2);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -1202,7 +1249,7 @@ public class HandTest {
 		h3 = SetHand(FullHouse2,h3);
 		
 		try {
-			h3 = Hand.EvaluateHand(h3);
+			h3 = Hand.Evaluate(h3);
 		} catch (HandException e) {			
 			e.printStackTrace();
 			fail("TestStraightEval failed");
@@ -1250,7 +1297,7 @@ public class HandTest {
 				}	
 			}
 			try {
-				h.EvaluateHand(h);
+				h = Hand.Evaluate(h);
 			} catch (HandException e) {
 				e.printStackTrace();
 				fail("TestHandSortTons failed");	
